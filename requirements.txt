@@ -1,0 +1,27 @@
+fastapi
+uvicorn[standard]
+
+pydantic
+pydantic-settings
+
+sqlalchemy
+psycopg[binary]
+alembic
+
+langchain
+langchain-openai
+langgraph
+langchain-mcp-adapters
+
+mcp
+fastmcp
+
+faiss-cpu
+
+langsmith
+
+pytest
+pytest-asyncio
+ruff
+
+-e .
