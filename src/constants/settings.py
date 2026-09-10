@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     LANGSMITH_TRACING: bool
     LANGSMITH_PROJECT: str
 
+    LLM_MODEL: str = "gpt-4o-mini"
+    JUDGE_LLM_MODEL: str = "gpt-4o"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
