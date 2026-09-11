@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.components.database.connection import engine
 from src.constants.settings import settings
 from src.routes.health import router as health_router
+from src.routes.auth import router as auth_router
 from src.utils.logger import setup_logger
 
 import asyncio
@@ -39,7 +40,9 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['*'],
+    allow_origins=[
+        settings.FRONTEND_ORIGIN
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,3 +50,4 @@ app.add_middleware(
 
 
 app.include_router(health_router)
+app.include_router(auth_router)
