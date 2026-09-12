@@ -12,13 +12,17 @@ langchain
 langchain-openai
 langgraph
 langchain-mcp-adapters
+langchain-community
+langchain-text-splitters
+langsmith
+
+pymupdf
+python-multipart
 
 mcp
 fastmcp
 
 faiss-cpu
-
-langsmith
 
 pytest
 pytest-asyncio
