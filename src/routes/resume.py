@@ -12,6 +12,7 @@ from src.components.resume.service import (
     get_user_resumes,
     save_resume,
 )
+from src.components.retrieval.resume_vector_store import create_resume_vector_store
 
 router = APIRouter(
     prefix="/resumes",
@@ -50,12 +51,21 @@ async def upload_resume(
             detail="Could not extract text from the resume"
         )
 
-    return await save_resume(
+    resume =  await save_resume(
         db=db,
         user_id=current_user.id,
         filename=file.filename or "resume.pdf",
         content=content
     )
+
+    await create_resume_vector_store(
+        resume_id=resume.id,
+        user_id=current_user.id,
+        filename=resume.filename,
+        content=resume.content
+    )
+
+    return resume
 
 
 @router.get(
