@@ -18,10 +18,3 @@ class CRAGState(TypedDict):
     ]
     refined_context: NotRequired[str]
     web_context: NotRequired[str]
-    final_response: NotRequired[str]
-
-    support_status: NotRequired[Literal["supported", "unsupported"]] | None
-    usefulness_status: NotRequired[Literal["useful", "not_useful"]] | None
-
-    revision_count: NotRequired[int]
-    rewrite_count: NotRequired[int]

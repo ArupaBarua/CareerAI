@@ -13,7 +13,7 @@ from src.components.resume.service import (
     save_resume,
 )
 from src.components.retrieval.resume_vector_store import create_resume_vector_store
-
+from src.components.graphrag.ingestion_graph import resume_graph_ingestion
 router = APIRouter(
     prefix="/resumes",
     tags=["Resumes"]
@@ -63,6 +63,15 @@ async def upload_resume(
         user_id=current_user.id,
         filename=resume.filename,
         content=resume.content
+    )
+
+    await resume_graph_ingestion.ainvoke(
+        {
+            "user_id": current_user.id,
+            "resume_id": resume.id,
+            "filename": resume.filename,
+            "content": resume.content
+        }
     )
 
     return resume

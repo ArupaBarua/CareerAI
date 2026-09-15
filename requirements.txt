@@ -24,6 +24,8 @@ fastmcp
 
 faiss-cpu
 
+neo4j
+
 pytest
 pytest-asyncio
 ruff

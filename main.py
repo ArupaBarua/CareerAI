@@ -9,6 +9,9 @@ from src.routes.health import router as health_router
 from src.routes.auth import router as auth_router
 from src.routes.conversations import router as conversations_router
 from src.routes.messages import router as messages_router
+from src.routes.resume import router as resume_router
+from src.components.graphrag.connection import close_neo4j_connection, verify_neo4j_connection
+
 from src.utils.logger import setup_logger
 
 import asyncio
@@ -25,7 +28,11 @@ logger = setup_logger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("CareerAI application started")
 
+    await verify_neo4j_connection()
+
     yield
+
+    await close_neo4j_connection()
 
     await engine.dispose()
 
@@ -55,3 +62,4 @@ app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(conversations_router)
 app.include_router(messages_router)
+app.include_router(resume_router)

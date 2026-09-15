@@ -9,6 +9,11 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str
 
+    NEO4J_URI: str
+    NEO4J_USERNAME: str
+    NEO4J_PASSWORD: str
+    NEO4J_DATABASE: str
+
     OPENAI_API_KEY: str
 
     LANGSMITH_API_KEY: str
