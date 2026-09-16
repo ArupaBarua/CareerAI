@@ -3,6 +3,10 @@ from langgraph.graph import END, START, StateGraph
 from src.components.graphrag.retriever import retrieve_resume_graph
 from src.components.graphrag.state import GraphRAGState
 
+from src.utils.logger import setup_logger
+
+logger = setup_logger(__name__)
+
 
 async def retrieve_graph_node(
     state: GraphRAGState,
@@ -65,3 +69,5 @@ builder.add_edge(
 )
 
 graphrag_graph = builder.compile()
+
+logger.info("Compiled graphRAG.")
