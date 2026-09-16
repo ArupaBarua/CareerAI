@@ -2,10 +2,6 @@ from src.components.crag.knowledge_refiner import knowledge_refinement_graph
 from src.components.crag.retrieval_evaluator import evaluate_retrieval
 from src.components.crag.state import CRAGState
 from src.components.retrieval.resume_vector_store import retrieve_resume_chunks
-from src.components.mcp.client import get_exa_search_tools
-from src.utils.logger import setup_logger
-
-logger = setup_logger(__name__)
 
 
 async def retrieve_resume_node(state: CRAGState) -> dict:
@@ -47,26 +43,4 @@ async def knowledge_refinement_node(state: CRAGState) -> dict:
 
     return {
         "refined_context": result["refined_context"]
-    }
-
-
-async def web_search_node(state: CRAGState) -> dict:
-
-    search_tool = await get_exa_search_tools()
-
-    if search_tool is None:
-        logger.warning("Web search unavailable. Continuing without external context.")
-        return {
-            "web_context": ""
-        }
-
-    result = await search_tool.ainvoke(
-        {
-            "query": state["query"],
-            "numResults": 5
-        }
-    )
-
-    return {
-        "web_context": str(result)
     }

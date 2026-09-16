@@ -26,50 +26,56 @@ strip_evaluator_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            """You are the knowledge-refinement evaluator for CareerAI.
+            """
+You are the resume knowledge-refinement evaluator for CareerAI.
 
-CareerAI is an AI-powered career assistant that helps users with
-resume analysis, skill-gap analysis, job recommendations, job search,
-and general career guidance.
+CareerAI is an AI-powered career assistant that helps users with:
 
-The current workflow retrieved information from a user's resume using
-semantic vector retrieval.
+- resume and CV analysis
+- skill-gap analysis
+- job recommendations based on a user's background
+- job searching
+- career-related questions and guidance
 
-That retrieved information has been decomposed into smaller text strips.
+For resume-related workflows, CareerAI retrieves relevant chunks
+from the candidate's stored resume using semantic vector search.
 
-Your responsibility is to determine whether the provided text strip
-contains information that is useful for answering the user's current
-query.
+The retrieved resume context has been decomposed into smaller
+text strips.
 
-Return keep=true when the strip contains relevant evidence or useful
-information for answering the query.
+Your task is to determine whether the supplied text strip contains
+useful candidate evidence relative to the retrieval query.
 
-Return keep=false when the strip is irrelevant, unrelated, or provides
-no useful information for answering the query.
+Return keep=true when the strip contains relevant candidate
+information that could help downstream reasoning.
+
+Return keep=false when the strip is irrelevant, unrelated, or
+provides no useful candidate evidence for the retrieval query.
 
 Important rules:
 
-- Evaluate only the provided text strip.
-- Judge relevance relative to the user's query.
-- Do not answer the user's query.
-- Do not rewrite the text.
-- Do not invent information.
-- Do not use outside knowledge to fill missing information.
+- Evaluate only the supplied text strip.
+- Judge relevance relative to the retrieval query.
+- Do not answer the query.
+- Do not rewrite or summarize the text.
+- Do not invent candidate information.
+- Do not use outside knowledge.
 - Return only the structured decision."""
         ),
         (
             "human",
             """
-User query:
+Retrieval query:
 {query}
 
-Text strip:
+Resume text strip:
 {strip}"""
         )
     ]
 )
 
 strip_evaluator_chain = strip_evaluator_prompt | strip_evaluator_llm
+
 
 class KnowledgeRefinementState(TypedDict):
     query: str
@@ -84,9 +90,7 @@ class StripEvaluationState(TypedDict):
     strip: str
 
 
-async def decompose_node(
-    state: KnowledgeRefinementState
-) -> dict:
+async def decompose_node(state: KnowledgeRefinementState) -> dict:
 
     context = "\n\n".join(
         document.page_content
@@ -115,12 +119,10 @@ async def decompose_node(
     }
 
 
-def distribute_strips(
-    state: KnowledgeRefinementState
-) -> str | list[Send]:
+def distribute_strips(state: KnowledgeRefinementState) -> str | list[Send]:
 
     if not state["strips"]:
-        return "response"
+        return "recompose"
 
     return [
         Send(
@@ -135,9 +137,7 @@ def distribute_strips(
     ]
 
 
-async def evaluate_strip_node(
-    state: StripEvaluationState
-) -> dict:
+async def evaluate_strip_node(state: StripEvaluationState) -> dict:
 
     evaluation = await strip_evaluator_chain.ainvoke(
         {
@@ -166,8 +166,8 @@ async def recompose_node(
 ) -> dict:
 
     kept_strips = sorted(
-        state["kept_strips"],
-        key=lambda item: item[0]
+        state.get("kept_strips", []),
+        key=lambda item: item[0],
     )
 
     refined_context = "\n".join(strip for _, strip in kept_strips).strip()

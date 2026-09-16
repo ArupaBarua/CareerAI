@@ -1,44 +1,71 @@
 from typing import Literal, NotRequired, TypedDict
-from langchain_core.prompts import ChatPromptTemplate
 
-from src.components.graph.candidate_context_graph import candidate_context_graph
+from langchain_core.messages import ToolMessage
+from langchain_core.prompts import ChatPromptTemplate
+from langgraph.graph import END, START, StateGraph
+
 from src.components.evaluation.response_evaluation import (
     query_rewrite_chain,
     revision_chain,
     support_evaluator_chain,
     usefulness_evaluator_chain,
 )
+from src.components.graph.candidate_context_graph import candidate_context_graph
 from src.components.llm.model import llm
-from langgraph.graph import END, START, StateGraph
+from src.components.mcp.client import get_exa_search_tools
+from src.utils.logger import setup_logger
 
 
-#GraphState
+logger = setup_logger(__name__)
+
+
+MAX_TOOL_ROUNDS = 2
+
+
+# State
 class ResumeAnalysisState(TypedDict):
+
     query: str
+
+    intent: Literal[
+        "resume_analysis",
+        "skill_gap",
+    ]
+
     user_id: int
     resume_id: int
 
     retrieval_query: NotRequired[str]
 
+    # Candidate evidence
     text_context: NotRequired[str]
     graph_context: NotRequired[str]
-    web_context: NotRequired[str]
+
+    job_context: NotRequired[str]
 
     final_response: NotRequired[str]
 
     support_status: NotRequired[
-        Literal["supported", "unsupported"] | None
+        Literal[
+            "supported",
+            "unsupported",
+        ]
+        | None
     ]
 
     usefulness_status: NotRequired[
-        Literal["useful", "not_useful"] | None
+        Literal[
+            "useful",
+            "not_useful",
+        ]
+        | None
     ]
 
     revision_count: NotRequired[int]
     rewrite_count: NotRequired[int]
 
 
-#Nodes
+# Prompt
 resume_analysis_prompt = ChatPromptTemplate.from_messages(
     [
         (
@@ -46,51 +73,91 @@ resume_analysis_prompt = ChatPromptTemplate.from_messages(
             """
 You are the Resume Analysis Agent of CareerAI.
 
-CareerAI is an AI-powered career assistant chatbot designed to help users
-with job searching, resume analysis, job-role recommendations, skill-gap
-analysis, and general career-related questions.
+CareerAI is an AI-powered career assistant that helps users with:
 
-Answer the user's question by analyzing the supplied candidate context.
+- resume and CV analysis
+- skill-gap analysis
+- job recommendations based on a user's background
+- job searching
+- career-related questions and guidance
 
-Use only the supplied context for factual claims about the candidate.
+You handle two intents:
 
-The context may include:
-- relevant resume text,
-- knowledge-graph relationships,
-- web context when retrieval correction required it.
+1. resume_analysis
 
-Do not invent skills, experience, projects, education,
-achievements, roles, technologies, organizations, or dates.
+Analyze the candidate's supplied context and answer questions about
+their skills, experience, projects, education, research, achievements,
+roles, and other resume-related information.
 
-If the available context is insufficient, say so clearly.
-"""
+2. skill_gap
+
+Compare the candidate's supplied context with a target job or role.
+
+For skill-gap analysis:
+
+- determine the relevant skills and qualifications required for the
+  requested job or role using the user's query, supplied job context,
+  or external tools when necessary,
+- identify which of those skills are clearly demonstrated by the
+  candidate's context,
+- identify skills that are only partially demonstrated or supported
+  by related experience,
+- identify required skills for which the supplied candidate context
+  provides no support,
+- clearly distinguish demonstrated skills from skill gaps.
+
+Candidate context consists only of:
+
+- resume text context,
+- candidate knowledge-graph context.
+
+Never use external search results to infer facts about the candidate.
+
+External tools may be used when current, specific, or otherwise
+unavailable information about a target job, role, company, or job
+market is necessary.
+
+Use an external tool only when the information is not already
+sufficiently available in the user's query or supplied job context.
+
+Never use external tools to fill missing candidate information.
+
+Important rules:
+
+- Follow the supplied intent.
+- Candidate-related factual claims must be supported by candidate context.
+- Job- or role-related factual claims must be supported by the user's
+  query, supplied job context, or information obtained through an external tool.
+- Do not invent candidate skills, experience, qualifications,
+  education, achievements, projects, organizations, roles or technologies.
+- Do not invent job requirements.
+- If the available evidence is insufficient, say so clearly.
+""",
         ),
         (
             "human",
             """
+Intent:
+{intent}
+
 User query:
 {query}
 
-Resume text context:
+Candidate resume context:
 {text_context}
 
-Knowledge graph context:
+Candidate knowledge-graph context:
 {graph_context}
 
-Web context:
-{web_context}
+Existing target job or role context:
+{job_context}
 """,
         ),
     ]
 )
 
-
-resume_analysis_chain = resume_analysis_prompt | llm
-
-
-async def retrieve_candidate_context_node(
-    state: ResumeAnalysisState,
-) -> dict:
+# Nodes
+async def retrieve_candidate_context_node(state: ResumeAnalysisState) -> dict:
 
     retrieval_query = state.get(
         "retrieval_query",
@@ -114,10 +181,6 @@ async def retrieve_candidate_context_node(
             "graph_context",
             "",
         ),
-        "web_context": result.get(
-            "web_context",
-            "",
-        ),
     }
 
 
@@ -125,32 +188,94 @@ async def generate_response_node(
     state: ResumeAnalysisState,
 ) -> dict:
 
-    response = await resume_analysis_chain.ainvoke(
-        {
-            "query": state["query"],
-            "text_context": state.get(
-                "text_context",
-                "",
-            ),
-            "graph_context": state.get(
-                "graph_context",
-                "",
-            ),
-            "web_context": state.get(
-                "web_context",
-                "",
-            ),
-        }
+    search_tool = await get_exa_search_tools()
+
+    if search_tool is not None:
+        agent_llm = llm.bind_tools(
+            [search_tool]
+        )
+    else:
+        logger.warning(
+            "Exa MCP search tool unavailable. "
+            "Continuing without external search."
+        )
+        agent_llm = llm
+
+    job_context = state.get(
+        "job_context",
+        "",
     )
 
+    messages = resume_analysis_prompt.format_messages(
+        intent=state["intent"],
+        query=state["query"],
+        text_context=state.get(
+            "text_context",
+            "",
+        ),
+        graph_context=state.get(
+            "graph_context",
+            "",
+        ),
+        job_context=job_context,
+    )
+
+    for _ in range(MAX_TOOL_ROUNDS):
+
+        response = await agent_llm.ainvoke(messages)
+
+        tool_calls = response.tool_calls
+
+        # LLM generated the final answer.
+        if not tool_calls:
+            return {
+                "final_response": response.content,
+                "job_context": job_context
+            }
+
+        # Add the LLM's tool-call message.
+        messages.append(response)
+
+        for tool_call in tool_calls:
+
+            if tool_call["name"] != search_tool.name:
+                logger.warning(
+                    "Unsupported tool requested: %s",
+                    tool_call["name"],
+                )
+                continue
+
+            tool_result = await search_tool.ainvoke(tool_call["args"])
+
+            tool_result_text = str(tool_result)
+
+            if job_context:
+                job_context += (
+                    "\n\n"
+                    + tool_result_text
+                )
+            else:
+                job_context = tool_result_text
+
+            # Give the tool result back to the LLM.
+            messages.append(
+                ToolMessage(
+                    content=tool_result_text,
+                    tool_call_id=tool_call["id"],
+                )
+            )
+
+    # Maximum tool rounds reached.
+    # Calling the LLM without tools so it must now produce a final response using the accumulated tool results.
+    final_response = await llm.ainvoke(messages)
+
     return {
-        "final_response": response.content
+        "final_response": final_response.content,
+        "job_context": job_context
     }
 
 
-async def evaluate_support_node(
-    state: ResumeAnalysisState,
-) -> dict:
+async def evaluate_support_node(state: ResumeAnalysisState) -> dict:
 
     evaluation = await support_evaluator_chain.ainvoke(
         {
@@ -163,11 +288,11 @@ async def evaluate_support_node(
                 "graph_context",
                 "",
             ),
-            "web_context": state.get(
-                "web_context",
+            "job_context": state.get(
+                "job_context",
                 "",
             ),
-            "response": state["final_response"],
+            "response": state["final_response"]
         }
     )
 
@@ -176,9 +301,7 @@ async def evaluate_support_node(
     }
 
 
-async def revise_response_node(
-    state: ResumeAnalysisState,
-) -> dict:
+async def revise_response_node(state: ResumeAnalysisState) -> dict:
 
     response = await revision_chain.ainvoke(
         {
@@ -191,25 +314,27 @@ async def revise_response_node(
                 "graph_context",
                 "",
             ),
-            "web_context": state.get(
-                "web_context",
+            "job_context": state.get(
+                "job_context",
                 "",
             ),
-            "response": state["final_response"],
+            "response": state["final_response"]
         }
     )
 
     return {
         "final_response": response.content,
         "revision_count": (
-            state.get("revision_count", 0) + 1
+            state.get(
+                "revision_count",
+                0,
+            )
+            + 1
         ),
     }
 
 
-async def evaluate_usefulness_node(
-    state: ResumeAnalysisState,
-) -> dict:
+async def evaluate_usefulness_node(state: ResumeAnalysisState) -> dict:
 
     evaluation = await usefulness_evaluator_chain.ainvoke(
         {
@@ -223,9 +348,7 @@ async def evaluate_usefulness_node(
     }
 
 
-async def rewrite_query_node(
-    state: ResumeAnalysisState,
-) -> dict:
+async def rewrite_query_node(state: ResumeAnalysisState) -> dict:
 
     response = await query_rewrite_chain.ainvoke(
         {
@@ -236,22 +359,24 @@ async def rewrite_query_node(
 
     return {
         "retrieval_query": response.content.strip(),
+
         "rewrite_count": (
-            state.get("rewrite_count", 0) + 1
+            state.get(
+                "rewrite_count",
+                0,
+            )
+            + 1
         ),
 
-        # New retrieval cycle
         "text_context": "",
         "graph_context": "",
-        "web_context": "",
         "final_response": "",
         "support_status": None,
         "usefulness_status": None,
         "revision_count": 0,
     }
 
-
-#graph
+# Routing
 def route_support(state: ResumeAnalysisState) -> str:
 
     if state["support_status"] == "supported":
@@ -276,52 +401,53 @@ def route_usefulness(
     return "rewrite_query"
 
 
+# Graph
 builder = StateGraph(ResumeAnalysisState)
 
 builder.add_node(
     "retrieve_candidate_context",
-    retrieve_candidate_context_node,
+    retrieve_candidate_context_node
 )
 
 builder.add_node(
     "generate_response",
-    generate_response_node,
+    generate_response_node
 )
 
 builder.add_node(
     "evaluate_support",
-    evaluate_support_node,
+    evaluate_support_node
 )
 
 builder.add_node(
     "revise_response",
-    revise_response_node,
+    revise_response_node
 )
 
 builder.add_node(
     "evaluate_usefulness",
-    evaluate_usefulness_node,
+    evaluate_usefulness_node
 )
 
 builder.add_node(
     "rewrite_query",
-    rewrite_query_node,
+    rewrite_query_node
 )
 
 
 builder.add_edge(
     START,
-    "retrieve_candidate_context",
+    "retrieve_candidate_context"
 )
 
 builder.add_edge(
     "retrieve_candidate_context",
-    "generate_response",
+    "generate_response"
 )
 
 builder.add_edge(
     "generate_response",
-    "evaluate_support",
+    "evaluate_support"
 )
 
 builder.add_conditional_edges(
@@ -330,12 +456,12 @@ builder.add_conditional_edges(
     {
         "revise_response": "revise_response",
         "evaluate_usefulness": "evaluate_usefulness",
-    },
+    }
 )
 
 builder.add_edge(
     "revise_response",
-    "evaluate_support",
+    "evaluate_support"
 )
 
 builder.add_conditional_edges(
@@ -344,13 +470,12 @@ builder.add_conditional_edges(
     {
         "rewrite_query": "rewrite_query",
         "end": END,
-    },
+    }
 )
 
 builder.add_edge(
     "rewrite_query",
-    "retrieve_candidate_context",
+    "retrieve_candidate_context"
 )
-
 
 resume_analysis_agent = builder.compile()

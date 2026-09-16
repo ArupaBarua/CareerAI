@@ -13,8 +13,7 @@ class CRAGState(TypedDict):
         Literal[
             "correct",
             "ambiguous",
-            "incorrect",
-        ] | None
+            "incorrect"
+        ]
     ]
     refined_context: NotRequired[str]
-    web_context: NotRequired[str]
