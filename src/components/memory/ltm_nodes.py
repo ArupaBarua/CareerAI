@@ -2,7 +2,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.config import get_store
 
 from src.components.graph.state import CareerAIState
-from src.components.memory.service import (
+from src.components.memory.ltm_service import (
     search_relevant_user_memories,
     update_long_term_memory,
 )
