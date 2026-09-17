@@ -66,8 +66,8 @@ CareerAI is an AI-powered career assistant.
 
 Your task is to examine:
 
-1. the user's existing long-term memories,
-2. the user's latest message,
+1. the user's existing long-term memories
+2. the user's latest message
 
 and determine whether the long-term memory store should change.
 
