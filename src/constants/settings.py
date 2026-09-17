@@ -22,6 +22,7 @@ class Settings(BaseSettings):
 
     LLM_MODEL: str = "gpt-4o-mini"
     JUDGE_LLM_MODEL: str = "gpt-4o"
+    MEMORY_EMBEDDING_MODEL: str = "text-embedding-3-small"
 
     EXA_MCP_URL: str
     WORKOPIA_MCP_URL: str

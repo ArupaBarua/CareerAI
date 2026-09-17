@@ -11,6 +11,7 @@ class CareerAIState(TypedDict):
     conversation_id: int
     resume_id: Optional[int]
     intent: NotRequired[str]
+    long_term_memories: NotRequired[list[dict]]
     retrieved_context: NotRequired[list[dict]]
     job_results: NotRequired[list[dict]]
     final_response: NotRequired[str]

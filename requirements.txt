@@ -11,6 +11,7 @@ alembic
 langchain
 langchain-openai
 langgraph
+langgraph-checkpoint-postgres
 langchain-mcp-adapters
 langchain-community
 langchain-text-splitters
