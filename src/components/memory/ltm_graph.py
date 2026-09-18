@@ -1,12 +1,15 @@
 from langchain_core.messages import HumanMessage
 from langgraph.config import get_store
-
+from langgraph.graph import END, START, StateGraph
 from src.components.graph.state import CareerAIState
 from src.components.memory.ltm_service import (
     search_relevant_user_memories,
     update_long_term_memory,
 )
 
+from src.utils.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 def get_latest_user_message(
     state: CareerAIState,
@@ -42,6 +45,8 @@ async def update_long_term_memory_node(
         message=latest_user_message,
     )
 
+    logger.info("Updated long-term memories.")
+
     return {}
 
 
@@ -65,6 +70,42 @@ async def load_relevant_memories_node(
         limit=5,
     )
 
+    if memories is not None:
+        logger.info("Relevant long-term memories retrieved.")
+
     return {
         "long_term_memories": memories
     }
+
+
+builder = StateGraph(CareerAIState)
+
+
+builder.add_node(
+    "update_long_term_memory",
+    update_long_term_memory_node,
+)
+
+builder.add_node(
+    "load_relevant_memories",
+    load_relevant_memories_node,
+)
+
+
+builder.add_edge(
+    START,
+    "update_long_term_memory",
+)
+
+builder.add_edge(
+    "update_long_term_memory",
+    "load_relevant_memories",
+)
+
+builder.add_edge(
+    "load_relevant_memories",
+    END,
+)
+
+
+ltm_graph = builder.compile()

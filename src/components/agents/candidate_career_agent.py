@@ -11,7 +11,7 @@ from src.components.evaluation.response_evaluation import (
     support_evaluator_chain,
     usefulness_evaluator_chain,
 )
-from src.components.graph.candidate_context_graph import (
+from components.graph.candidate_context_subgraph import (
     candidate_context_graph,
 )
 from src.components.llm.model import llm
