@@ -24,8 +24,8 @@ class Settings(BaseSettings):
     JUDGE_LLM_MODEL: str = "gpt-4o"
     MEMORY_EMBEDDING_MODEL: str = "text-embedding-3-small"
 
-    SUMMARY_THRESHOLD = 50
-    RECENT_MESSAGES_TO_KEEP = 20
+    SUMMARY_THRESHOLD: int = 50
+    RECENT_MESSAGES_TO_KEEP: int = 20
 
     EXA_MCP_URL: str
     WORKOPIA_MCP_URL: str

@@ -70,8 +70,8 @@ builder.add_edge(START, "graphrag_context")
 
 builder.add_edge(
     [
-        "crag_evidence",
-        "graphrag_evidence",
+        "crag_context",
+        "graphrag_context",
     ],
     END,
 )
