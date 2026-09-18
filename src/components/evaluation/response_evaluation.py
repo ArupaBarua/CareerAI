@@ -59,12 +59,12 @@ The evidence may contain:
 
 - candidate resume evidence,
 - candidate knowledge-graph evidence,
-- target job or role evidence.
+- External job or role evidence.
 
 Candidate-related claims must be supported by the candidate resume
 or knowledge-graph evidence.
 
-Job- or role-related claims must be supported by the supplied target
+Job- or role-related claims must be supported by the supplied external
 job or role evidence.
 
 Classify the response as exactly one of:
@@ -88,7 +88,7 @@ Important rules:
 - Do not infer candidate information that is not supported by the
   supplied candidate evidence.
 - Do not infer job requirements that are not supported by the supplied
-  target job or role evidence.
+  external job or role evidence.
 - Return only the structured classification.
 """,
         ),
@@ -104,7 +104,7 @@ Candidate resume evidence:
 Candidate knowledge-graph evidence:
 {graph_context}
 
-Target job or role evidence:
+External job or role evidence:
 {job_context}
 
 Response:
@@ -185,12 +185,12 @@ The evidence may contain:
 
 - candidate resume evidence,
 - candidate knowledge-graph evidence,
-- target job or role evidence.
+- external job or role evidence.
 
 Candidate-related claims must be supported by the candidate resume
 or knowledge-graph evidence.
 
-Job- or role-related claims must be supported by the target job or
+Job- or role-related claims must be supported by the external job or
 role evidence.
 
 Strict rules:
@@ -226,7 +226,7 @@ Candidate resume evidence:
 Candidate knowledge-graph evidence:
 {graph_context}
 
-Target job or role evidence:
+External job or role evidence:
 {job_context}
 
 Current response:
