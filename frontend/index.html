@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CareerAI</title>
+
+    <link
+        rel="stylesheet"
+        href="./css/style.css"
+    >
+</head>
+
+<body>
+
+    <!-- ========================================================= -->
+    <!-- Authentication -->
+    <!-- ========================================================= -->
+
+    <section
+        id="auth-screen"
+        class="auth-screen"
+    >
+
+        <div class="auth-card">
+
+            <h1>CareerAI</h1>
+
+            <p class="subtitle">
+                Your AI-powered career assistant
+            </p>
+
+            <div class="auth-tabs">
+
+                <button
+                    id="login-tab"
+                    class="auth-tab active"
+                >
+                    Login
+                </button>
+
+                <button
+                    id="register-tab"
+                    class="auth-tab"
+                >
+                    Register
+                </button>
+
+            </div>
+
+            <form id="auth-form">
+
+                <input
+                    id="username"
+                    type="text"
+                    placeholder="Username"
+                    autocomplete="username"
+                    required
+                >
+
+                <input
+                    id="password"
+                    type="password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button
+                    id="auth-submit"
+                    type="submit"
+                    class="primary-button"
+                >
+                    Login
+                </button>
+
+            </form>
+
+            <p
+                id="auth-error"
+                class="error-message"
+            ></p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- Main application -->
+    <!-- ========================================================= -->
+
+    <main
+        id="app"
+        class="app hidden"
+    >
+
+        <!-- ===================================================== -->
+        <!-- Sidebar -->
+        <!-- ===================================================== -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+
+                <div class="brand">
+                    CareerAI
+                </div>
+
+                <button
+                    id="new-chat-button"
+                    class="new-chat-button"
+                >
+                    + New chat
+                </button>
+
+            </div>
+
+
+            <div
+                id="conversation-list"
+                class="conversation-list"
+            ></div>
+
+
+            <div class="sidebar-bottom">
+
+                <button
+                    id="resume-button"
+                    class="sidebar-action"
+                >
+                    Resumes
+                </button>
+
+                <button
+                    id="logout-button"
+                    class="sidebar-action"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- ===================================================== -->
+        <!-- Chat area -->
+        <!-- ===================================================== -->
+
+        <section class="chat-panel">
+
+            <header class="chat-header">
+
+                <div>
+
+                    <h2 id="conversation-title">
+                        CareerAI
+                    </h2>
+
+                    <p
+                        id="selected-resume-label"
+                        class="selected-resume-label"
+                    >
+                        No resume selected
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <div
+                id="messages"
+                class="messages"
+            >
+
+                <div
+                    id="welcome-message"
+                    class="welcome"
+                >
+
+                    <h2>
+                        How can CareerAI help?
+                    </h2>
+
+                    <p>
+                        Ask about careers, resumes,
+                        skills, jobs, or interview preparation.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- Streaming status -->
+            <!-- ================================================= -->
+
+            <div
+                id="agent-status"
+                class="agent-status hidden"
+            ></div>
+
+
+            <!-- ================================================= -->
+            <!-- Composer -->
+            <!-- ================================================= -->
+
+            <div class="composer-wrapper">
+
+                <form
+                    id="chat-form"
+                    class="composer"
+                >
+
+                    <textarea
+                        id="message-input"
+                        placeholder="Message CareerAI..."
+                        rows="1"
+                    ></textarea>
+
+                    <button
+                        id="send-button"
+                        type="submit"
+                    >
+                        Send
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ========================================================= -->
+    <!-- Resume modal -->
+    <!-- ========================================================= -->
+
+    <div
+        id="resume-modal"
+        class="modal hidden"
+    >
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+
+                <h2>Resumes</h2>
+
+                <button
+                    id="close-resume-modal"
+                    class="close-button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form
+                id="resume-upload-form"
+                class="resume-upload-form"
+            >
+
+                <input
+                    id="resume-file"
+                    type="file"
+                    accept="application/pdf"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Upload PDF
+                </button>
+
+            </form>
+
+
+            <div
+                id="resume-list"
+                class="resume-list"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+
+    <script
+        type="module"
+        src="./js/app.js"
+    ></script>
+
+</body>
+
+</html>

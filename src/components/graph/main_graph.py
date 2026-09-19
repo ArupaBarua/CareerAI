@@ -35,7 +35,9 @@ async def candidate_career_node(
     user_query = get_latest_user_message(state)
 
     # Candidate-centric workflows require a resume.
-    if state["resume_id"] is None:
+    resume_id = state.get("resume_id")
+
+    if resume_id is None:
 
         response = (
             "I need a resume to analyze your background "

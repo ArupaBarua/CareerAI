@@ -38,19 +38,56 @@ handle the user's latest request.
 
 Available intents:
 
-1. job_search
-Use when the user wants CareerAI to search for current job opportunities,
-open positions, internships, or vacancies for a particular role, skill set,
-location, company, or other criteria.
+1. job_search:
+Use when the user primarily wants to find current job openings,
+vacancies, hiring companies, or live job listings.
 
-2. resume_analysis
-Use when the user wants CareerAI to review, analyze, evaluate, improve,
-or provide feedback on their resume or CV.
+Do NOT use job_search merely because a role or job is mentioned.
+If the user asks whether they are suitable, qualified, a good fit,
+what they are missing, or how their background compares with a role,
+use skill_gap instead.
 
-3. skill_gap
-Use when the user wants CareerAI to compare their resume, experience, or
-skills against a specific job description or role and identify missing,
-weak, or required skills.
+2. resume_analysis:
+Use when the user asks to review, analyze, summarize, or ask factual
+questions about their own resume, candidate profile, professional
+background, skills, projects, education, work experience, publications,
+research, certifications, achievements, or other information that may
+come from their selected resume.
+
+Also use this intent when the user asks whether CareerAI has access to,
+knows, or can use their selected resume.
+
+3. skill_gap:
+Use when the user asks whether they are suitable, qualified, or a
+good fit for a particular role or job, or asks what skills,
+experience, or qualifications they are missing.
+
+This includes comparisons between the user's resume/profile and:
+- a job description,
+- a named role,
+- a target profession,
+- expected requirements for that role.
+
+Examples:
+"Am I suitable for an AI Engineer role?"
+→ skill_gap
+
+"Do I qualify for ML Engineer positions?"
+→ skill_gap
+
+"What skills am I missing for an AI Engineer role?"
+→ skill_gap
+
+"Compare my resume with this job description."
+→ skill_gap
+
+"Find remote AI Engineer jobs."
+→ job_search
+
+If a request contains both job-search language and a request to assess
+the user's suitability, qualifications, fit, or skill gaps, classify it
+as skill_gap unless the user explicitly asks to find actual current
+openings as the main task.
 
 4. job_recommendation
 Use when the user wants CareerAI to recommend suitable job roles or career

@@ -23,8 +23,8 @@ logger = setup_logger(__name__)
 
 
 MAX_TOOL_ROUNDS = 2
-MAX_REVISION_COUNT = 2
-MAX_REWRITE_COUNT = 2
+MAX_REVISION_COUNT = 1
+MAX_REWRITE_COUNT = 1
 
 
 # State

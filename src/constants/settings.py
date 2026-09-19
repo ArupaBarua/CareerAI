@@ -28,7 +28,6 @@ class Settings(BaseSettings):
     RECENT_MESSAGES_TO_KEEP: int = 20
 
     EXA_MCP_URL: str
-    WORKOPIA_MCP_URL: str
 
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"

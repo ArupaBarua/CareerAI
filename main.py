@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import asyncio
 import sys
 from contextlib import asynccontextmanager
@@ -21,7 +24,7 @@ from src.routes.health import router as health_router
 from src.routes.messages import router as messages_router
 from src.routes.resume import router as resume_router
 from src.utils.logger import setup_logger
-
+from fastapi.staticfiles import StaticFiles
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(
@@ -97,3 +100,13 @@ app.include_router(messages_router)
 app.include_router(resume_router)
 
 app.include_router(chat_router)
+
+
+app.mount(
+    "/",
+    StaticFiles(
+        directory="frontend",
+        html=True
+    ),
+    name="frontend"
+)

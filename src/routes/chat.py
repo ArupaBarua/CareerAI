@@ -154,6 +154,74 @@ def get_tool_status(
     return "Using an external tool..."
 
 
+@router.get(
+    "/conversations/{conversation_id}/resume"
+)
+async def get_conversation_resume(
+    conversation_id: int,
+    request: Request,
+    current_user: User = Depends(
+        get_current_user
+    ),
+    db: AsyncSession = Depends(
+        get_db
+    ),
+):
+    conversation = await get_conversation(
+        db=db,
+        conversation_id=conversation_id,
+        user_id=current_user.id,
+    )
+
+    if conversation is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Conversation not found.",
+        )
+
+    graph = (
+        request
+        .app
+        .state
+        .career_ai_graph
+    )
+
+    config = get_thread_config(
+        conversation_id
+    )
+
+    snapshot = await graph.aget_state(
+        config
+    )
+
+    resume_id = snapshot.values.get(
+        "resume_id"
+    )
+
+    if resume_id is None:
+        return {
+            "resume_id": None,
+            "filename": None,
+        }
+
+    resume = await get_resume(
+        db=db,
+        resume_id=resume_id,
+        user_id=current_user.id,
+    )
+
+    if resume is None:
+        return {
+            "resume_id": None,
+            "filename": None,
+        }
+
+    return {
+        "resume_id": resume.id,
+        "filename": resume.filename,
+    }
+
+
 # Streaming chat endpoint
 
 @router.post(

@@ -25,8 +25,9 @@ retrieval_evaluator_prompt = ChatPromptTemplate.from_messages(
             """
 You are the resume retrieval evaluator for CareerAI.
 
-CareerAI retrieves relevant chunks from a candidate's stored resume
-using semantic vector search.
+CareerAI is an AI-powered career assistant that helps users with
+resume analysis, skill-gap analysis, job recommendations, job
+searching, and general career guidance.
 
 Your task is to evaluate the quality of the retrieved resume context
 relative to the supplied retrieval query.

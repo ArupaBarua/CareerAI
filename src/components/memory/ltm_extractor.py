@@ -26,9 +26,9 @@ class MemoryOperation(BaseModel):
     memory_type: str | None = Field(
         default=None,
         description=(
-            "The category of the memory, such as target_role, "
-            "career_goal, work_preference, location_preference, "
-            "or professional_interest."
+            "The category of the memory, such as preferred_name, "
+            "target_role, career_goal, work_preference, "
+            "location_preference, or professional_interest."
         ),
     )
 
@@ -76,6 +76,7 @@ career-related conversations.
 
 Good long-term memories include:
 
+- the user's preferred name,
 - target job roles,
 - career goals,
 - preferred work arrangements,

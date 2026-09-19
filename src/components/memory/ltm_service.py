@@ -3,6 +3,9 @@ import json
 from langgraph.store.base import BaseStore
 
 from src.components.memory.ltm_extractor import MemoryExtractionResult, memory_extractor_chain
+from src.utils.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 def get_user_memory_namespace(
     user_id: int,
@@ -192,6 +195,9 @@ async def update_long_term_memory(
                 content=operation.content,
             )
 
+            logger.info("Added new long-term memory.")
+
+
         elif operation.action == "update":
 
             if (
@@ -218,6 +224,9 @@ async def update_long_term_memory(
                 content=operation.content,
             )
 
+            logger.info("Updated existing long term memory.")
+
+
         elif operation.action == "delete":
 
             if operation.memory_id is None:
@@ -237,3 +246,5 @@ async def update_long_term_memory(
                 user_id=user_id,
                 memory_id=operation.memory_id,
             )
+
+            logger.info("Deleted an existing memory.")

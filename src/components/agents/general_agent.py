@@ -15,7 +15,7 @@ logger = setup_logger(__name__)
 
 
 MAX_TOOL_ROUNDS = 2
-MAX_REGENERATION_COUNT = 2
+MAX_REGENERATION_COUNT = 1
 
 
 class GeneralAgentState(TypedDict):

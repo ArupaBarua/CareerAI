@@ -45,8 +45,6 @@ async def update_long_term_memory_node(
         message=latest_user_message,
     )
 
-    logger.info("Updated long-term memories.")
-
     return {}
 
 

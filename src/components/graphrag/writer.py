@@ -116,7 +116,7 @@ async def merge_entity(
         await run_query(
             tx,
             query,
-            normalized_name,
+            normalized_name=normalized_name,
             name=entity.name,
             category=entity.category
         )
