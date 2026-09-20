@@ -101,16 +101,6 @@ class Message(Base):
         nullable=True,
     )
 
-    tool_name: Mapped[str | None] = mapped_column(
-        String(100),
-        nullable=True,
-    )
-
-    tool_call_id: Mapped[str | None] = mapped_column(
-        String(255),
-        nullable=True,
-    )
-
     tool_data: Mapped[dict | list | None] = mapped_column(
         JSONB,
         nullable=True,
