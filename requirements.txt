@@ -17,6 +17,8 @@ langchain-community
 langchain-text-splitters
 langsmith
 
+ddgs
+
 pymupdf
 python-multipart
 

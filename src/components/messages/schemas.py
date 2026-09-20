@@ -7,8 +7,6 @@ class MessageResponse(BaseModel):
     conversation_id: int
     role: str
     content: str | None
-    tool_name: str | None
-    tool_call_id: str | None
     tool_data: dict[str, Any] | list[Any] | None
     created_at: datetime
 

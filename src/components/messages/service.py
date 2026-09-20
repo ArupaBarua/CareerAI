@@ -14,8 +14,6 @@ async def create_message(
     conversation: Conversation,
     role: str,
     content: str | None = None,
-    tool_name: str | None = None,
-    tool_call_id: str | None = None,
     tool_data: dict[str, Any] | list[Any] | None = None,
 ) -> Message:
 
@@ -23,8 +21,6 @@ async def create_message(
         conversation_id=conversation.id,
         role=role,
         content=content,
-        tool_name=tool_name,
-        tool_call_id=tool_call_id,
         tool_data=tool_data,
     )
 

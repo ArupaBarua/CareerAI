@@ -681,8 +681,7 @@ function handleNewConversation() {
     );
 
 
-    conversationTitle.textContent =
-        "New Chat";
+    conversationTitle.textContent = "CareerAI";
 
 
     /*
@@ -830,9 +829,7 @@ async function handleSendMessage(
             );
 
 
-            conversationTitle.textContent =
-                conversation.title
-                || "New Chat";
+            conversationTitle.textContent = "CareerAI"
 
 
             await loadConversations(
