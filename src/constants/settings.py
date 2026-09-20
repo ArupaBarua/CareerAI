@@ -42,8 +42,6 @@ class Settings(BaseSettings):
         "none",
     ] = "lax"
 
-    FRONTEND_ORIGIN: str
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
