@@ -149,14 +149,14 @@ The deployment workflow is defined under `.github/workflows/`. The `Continuous-I
 - **Parallel candidate-context retrieval** — structured graph knowledge and semantic resume evidence are retrieved together before candidate-focused responses are generated.
 - **Live job search** — current job-opening requests use DuckDuckGo-backed search rather than relying only on static model knowledge.
 - **MCP integration** — Exa is integrated through a remote Model Context Protocol endpoint for external web research when required.
-- **Response evaluation and refinement** — generated responses can be checked for contextual support and usefulness before being returned.
+- **Response evaluation and refinement** — generated responses are checked for contextual support and usefulness by a judge LLM before being returned.
 - **Short-term memory** — LangGraph's PostgreSQL checkpointer stores conversation state using conversation-specific thread IDs.
 - **Long-term memory** — LangGraph Postgres Store with pgvector persists semantically searchable user memories across conversations.
 - **Persistent application history** — users, conversations, messages, resumes, and authentication sessions are stored in Neon PostgreSQL.
 - **Conversation-scoped resume selection** — a resume can be selected for a conversation and remains available through the LangGraph checkpoint for later messages in that thread.
 - **Resume graph ingestion** — resume uploads update both the FAISS semantic index and Neo4j candidate graph.
 - **Authentication** — JWT access tokens and server-side refresh sessions protect user-specific conversations and resumes.
-- **ChatGPT-style frontend** — vanilla HTML, CSS, and JavaScript provide conversation history, resume selection, Markdown rendering, status updates, and streamed responses.
+- **Chatbot-style frontend** — vanilla HTML, CSS, and JavaScript provide conversation history, resume selection, Markdown rendering, status updates, and streamed responses.
 - **LangSmith observability** — LangGraph and LLM executions can be traced and inspected through LangSmith.
 - **Containerized deployment** — the complete application runs inside a Docker container.
 - **Persistent FAISS storage on EC2** — FAISS indexes are mounted outside the container so they survive container replacement.
@@ -171,7 +171,8 @@ The deployment workflow is defined under `.github/workflows/`. The `Continuous-I
 | Languages | Python 3.11, JavaScript |
 | Backend | FastAPI, Uvicorn |
 | Agentic AI | LangGraph, LangChain |
-| LLM | OpenAI API |
+| LLM | gpt-4o-mini |
+| Judge LLM | gpt-4o |
 | Structured Output | Pydantic |
 | Resume Retrieval | FAISS, LangChain Text Splitters |
 | GraphRAG | Neo4j AuraDB |
@@ -384,6 +385,8 @@ http://localhost:8000
 ### Upload a resume
 
 Open the resume selector in the CareerAI interface and upload a PDF resume.
+
+The resume has to be selected for resume related question answering.
 
 The upload pipeline performs:
 
