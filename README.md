@@ -143,13 +143,13 @@ The deployment workflow is defined under `.github/workflows/`. The `Continuous-I
 
 - **Multi-agent LangGraph architecture** — requests are routed to dedicated candidate-career, job-search, or general-purpose workflows based on user intent.
 - **Intent-aware routing** — distinguishes between live job searches, resume analysis, skill-gap analysis, role recommendations, and general career questions.
-- **Corrective RAG (CRAG)** — resume retrieval includes relevance evaluation, refinement, and query rewriting rather than blindly using retrieved chunks.
+- **Corrective RAG (CRAG)** — resume retrieval includes relevance evaluation and knowledge refinement rather than blindly using retrieved chunks.
 - **FAISS resume retrieval** — uploaded resumes are parsed, chunked, embedded, and stored in persistent FAISS indexes for semantic candidate-profile retrieval.
 - **GraphRAG with Neo4j** — candidate information is transformed into graph entities and relationships such as skills, projects, research, publications, institutions, organizations, roles, and certifications.
 - **Parallel candidate-context retrieval** — structured graph knowledge and semantic resume evidence are retrieved together before candidate-focused responses are generated.
-- **Live job search** — current job-opening requests use DuckDuckGo-backed search rather than relying only on static model knowledge.
+- **Live job search with tool calling** — the job-search agent invokes a DuckDuckGo-backed search tool to retrieve current job openings, allowing responses to use live external data instead of relying only on static model knowledge.
 - **MCP integration** — Exa is integrated through a remote Model Context Protocol endpoint for external web research when required.
-- **Response evaluation and refinement** — generated responses are checked for contextual support and usefulness by a judge LLM before being returned.
+- **LLM-driven response evaluation and refinement** — generated responses are evaluated for contextual support and usefulness; unsupported answers are revised using the available context, while unhelpful outputs trigger query rewriting, retrieval of more relevant context, and another generation cycle to produce a stronger final response.
 - **Short-term memory** — LangGraph's PostgreSQL checkpointer stores conversation state using conversation-specific thread IDs.
 - **Long-term memory** — LangGraph Postgres Store with pgvector persists semantically searchable user memories across conversations.
 - **Persistent application history** — users, conversations, messages, resumes, and authentication sessions are stored in Neon PostgreSQL.
