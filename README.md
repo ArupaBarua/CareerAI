@@ -1,7 +1,5 @@
 # 🤖 CareerAI — Agentic AI Career Assistant
 
-[![Live App](https://img.shields.io/badge/Live%20App-54.81.124.162%3A8000-brightgreen?style=for-the-badge)](http://54.81.124.162:8000)
-
 CareerAI is an end-to-end **agentic AI career assistant** built with **LangGraph, LangChain, FastAPI, PostgreSQL, FAISS, Neo4j, MCP, and LangSmith**. CareerAI combines conversational memory, resume-derived context through corrective RAG and GraphRAG, live job search, external web tools, response evaluation, and a chatbot-style interface.
 
 The application is containerized with **Docker** and deployed to **AWS EC2** through an automated **GitHub Actions CI/CD pipeline**, with Docker images stored in **AWS ECR**, PostgreSQL hosted on **Neon**, graph data stored in **Neo4j AuraDB**, and persistent FAISS resume indexes stored on the EC2 instance's EBS-backed filesystem.
@@ -739,8 +737,6 @@ This keeps resume embeddings persistent even when a new Docker image is deployed
 CareerAI is deployed on **AWS EC2** and served from a Docker container pulled from **AWS ECR**.
 
 ![CareerAI EC2 Instance](./assets/ec2-instance.png)
-
-✅ **Live application:** [http://54.81.124.162:8000](http://54.81.124.162:8000)
 
 ---
 
